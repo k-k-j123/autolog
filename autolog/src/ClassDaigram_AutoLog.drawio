@@ -1,0 +1,46 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:143.0) Gecko/20100101 Firefox/143.0" version="28.2.5">
+  <diagram name="Page-1" id="dyjkpzaNs0KnqKpSGwZ8">
+    <mxGraphModel dx="1042" dy="612" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bMLjUHgjFddgD0F3saUq-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="bMLjUHgjFddgD0F3saUq-1" target="bMLjUHgjFddgD0F3saUq-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bMLjUHgjFddgD0F3saUq-10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="bMLjUHgjFddgD0F3saUq-1" target="bMLjUHgjFddgD0F3saUq-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bMLjUHgjFddgD0F3saUq-1" value="&lt;div&gt;vehicles&lt;/div&gt;&lt;div&gt;--------------------------------------------------&lt;/div&gt;&lt;div&gt;vid : int&lt;/div&gt;&lt;div&gt;vehicle name : string&lt;/div&gt;&lt;div&gt;purchase date : date&lt;/div&gt;&lt;div&gt;fuel tank size : int&lt;/div&gt;&lt;div&gt;---------------------------------------------------&lt;/div&gt;&lt;div&gt;addVehicle()&lt;/div&gt;&lt;div&gt;getVehiclesByUser()&lt;/div&gt;&lt;div&gt;deleteVehicle()&lt;/div&gt;&lt;div&gt;updateVehicle()&lt;/div&gt;&lt;div&gt;getLogsByVehicle()&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="340" y="60" width="190" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="bMLjUHgjFddgD0F3saUq-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="bMLjUHgjFddgD0F3saUq-2" target="bMLjUHgjFddgD0F3saUq-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bMLjUHgjFddgD0F3saUq-2" value="&lt;div&gt;User&lt;/div&gt;&lt;div&gt;--------------------------------------------------&lt;/div&gt;&lt;div&gt;id : int&lt;/div&gt;&lt;div&gt;name : String&lt;/div&gt;&lt;div&gt;email : string&lt;/div&gt;&lt;div&gt;password : string&lt;/div&gt;&lt;div&gt;--------------------------------------------------&lt;/div&gt;&lt;div&gt;createUser()&lt;/div&gt;&lt;div&gt;getUserById()&lt;/div&gt;&lt;div&gt;updateUser()&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="50" y="60" width="190" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="bMLjUHgjFddgD0F3saUq-5" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="246" y="118" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bMLjUHgjFddgD0F3saUq-6" value="*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="306" y="118" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bMLjUHgjFddgD0F3saUq-7" value="&lt;div&gt;Fuel Logs&lt;/div&gt;&lt;div&gt;-------------------------------------------------&lt;/div&gt;&lt;div&gt;id : int&amp;nbsp;&lt;/div&gt;&lt;div&gt;odometer : float&lt;/div&gt;&lt;div&gt;cost : float&lt;/div&gt;&lt;div&gt;fuleAmt : float&lt;/div&gt;&lt;div&gt;distanceDriven : float&amp;nbsp;&lt;/div&gt;&lt;div&gt;--------------------------------------------------&lt;/div&gt;&lt;div&gt;addLog()&lt;/div&gt;&lt;div&gt;calcualteMileage()&lt;/div&gt;&lt;div&gt;getAllLogs()&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="146" y="360" width="190" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="bMLjUHgjFddgD0F3saUq-9" value="&lt;div&gt;Service Logs&lt;/div&gt;&lt;div&gt;-------------------------------------------------&lt;/div&gt;&lt;div&gt;id : int&amp;nbsp;&lt;/div&gt;&lt;div&gt;dateOfService :date&lt;/div&gt;&lt;div&gt;cost : float&lt;/div&gt;&lt;div&gt;Note : string&lt;/div&gt;&lt;div&gt;&amp;nbsp;&lt;/div&gt;&lt;div&gt;--------------------------------------------------&lt;/div&gt;&lt;div&gt;addLog()()&lt;/div&gt;&lt;div&gt;getAllLogs()&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="540" y="360" width="190" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="bMLjUHgjFddgD0F3saUq-11" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="436" y="248" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bMLjUHgjFddgD0F3saUq-12" value="*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="246" y="328" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bMLjUHgjFddgD0F3saUq-13" value="*" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="636" y="328" width="30" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
