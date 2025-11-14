@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Vehicle Dashboard</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+	<div class="container mx-auto py-8">
+		<h1 class="text-3xl font-bold mb-6 text-center text-blue-700">Dashboard for {{ vehicle.name }}</h1>
+		<div class="flex justify-center gap-4 mb-8">
+			<a href="{{ url_for('service.add_service', vehicle_id=vehicle.id) }}" class="bg-green-600 text-white px-4 py-2 rounded font-semibold hover:bg-green-700 transition">Add Service Record</a>
+			<a href="{{ url_for('fuel.add_fuel_log', vehicle_id=vehicle.id) }}" class="bg-yellow-500 text-white px-4 py-2 rounded font-semibold hover:bg-yellow-600 transition">Add Fuel Log</a>
+		</div>
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+			<div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+				<span class="text-gray-500">Total KMs Driven</span>
+				<span class="text-2xl font-semibold text-blue-600">{{ total_kms }}</span>
+			</div>
+			<div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+				<span class="text-gray-500">Last Service Date</span>
+				<span class="text-2xl font-semibold text-green-600">{{ last_service_date if last_service_date else 'N/A' }}</span>
+			</div>
+			<div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+				<span class="text-gray-500">Current Mileage</span>
+				<span class="text-2xl font-semibold text-purple-600">{{ current_mileage }}</span>
+			</div>
+		</div>
+
+		<div class="bg-white rounded-lg shadow p-6 mb-8">
+			<h2 class="text-xl font-bold mb-4 text-gray-700">Mileage & Fuel Cost (Last 3 Months)</h2>
+			<canvas id="dashboardChart" height="120"></canvas>
+		</div>
+
+		<div class="bg-white rounded-lg shadow p-6">
+			<h2 class="text-xl font-bold mb-4 text-gray-700">Details</h2>
+			<ul class="list-disc ml-6 text-gray-600">
+				<li><strong>Vehicle Name:</strong> {{ vehicle.name }}</li>
+				<li><strong>Purchase date:</strong> {{ vehicle.purchase_date }}</li>
+				<li><strong>Registration Number:</strong> {{ vehicle.vehicle_number }}</li>
+			</ul>
+		</div>
+	</div>
+
+	<script>
+		// Assign Jinja variables to JS variables
+	const labels = {{ labels|tojson|safe }};
+	const mileageData = {{ mileage_data|tojson|safe }};
+	const costData = {{ cost_data|tojson|safe }};
+
+		const ctx = document.getElementById('dashboardChart').getContext('2d');
+		const dashboardChart = new Chart(ctx, {
+			type: 'line',
+			data: {
+				labels: labels,
+				datasets: [
+					{
+						label: 'Mileage',
+						data: mileageData,
+						borderColor: '#3b82f6',
+						backgroundColor: 'rgba(59, 130, 246, 0.1)',
+						yAxisID: 'y',
+					},
+					{
+						label: 'Fuel Cost',
+						data: costData,
+						borderColor: '#10b981',
+						backgroundColor: 'rgba(16, 185, 129, 0.1)',
+						yAxisID: 'y1',
+					}
+				]
+			},
+			options: {
+				responsive: true,
+				interaction: {
+					mode: 'index',
+					intersect: false,
+				},
+				stacked: false,
+				plugins: {
+					legend: {
+						position: 'top',
+					},
+					title: {
+						display: false,
+					}
+				},
+				scales: {
+					y: {
+						type: 'linear',
+						display: true,
+						position: 'left',
+						title: {
+							display: true,
+							text: 'Mileage'
+						}
+					},
+					y1: {
+						type: 'linear',
+						display: true,
+						position: 'right',
+						grid: {
+							drawOnChartArea: false,
+						},
+						title: {
+							display: true,
+							text: 'Fuel Cost'
+						}
+					}
+				}
+			}
+		});
+	</script>
+</body>
+</html>

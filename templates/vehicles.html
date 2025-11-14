@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Vehicles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-700">My Vehicles</h1>
+            <a href="{{ url_for('vehicles.add_vehicle') }}" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">Add New Vehicle</a>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="mb-4">
+              {% for category, message in messages %}
+                <div class="px-4 py-2 rounded text-white mb-2 {% if category == 'success' %}bg-green-500{% elif category == 'danger' %}bg-red-500{% else %}bg-blue-500{% endif %}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+        {% if vehicles %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white rounded-lg shadow">
+                <thead>
+                    <tr class="bg-blue-100">
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Name</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Number</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Purchase Date</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vehicle in vehicles %}
+                    <tr class="border-b">
+                        <td class="py-2 px-4">{{ vehicle.name }}</td>
+                        <td class="py-2 px-4">{{ vehicle.vehicle_number }}</td>
+                        <td class="py-2 px-4">{{ vehicle.purchase_date.strftime('%Y-%m-%d') }}</td>
+                        <td class="py-2 px-4">
+                            <form method="POST" action="{{ url_for('vehicles.delete_vehicle', vehicle_id=vehicle.id) }}" style="display:inline;">
+                                <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">Delete</button>
+                            </form>
+                            <a href="{{ url_for('dashboard.dashboard', vehicle_id=vehicle.id) }}" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition ml-2">View Dashboard</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="text-center text-gray-600 mt-12">
+                <p>No vehicles found. Add your first vehicle!</p>
+                <a href="{{ url_for('vehicles.add_vehicle') }}" class="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">Add Vehicle</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
