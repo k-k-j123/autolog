@@ -3,12 +3,12 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Add Service Entry</title>
+	<title>{% if log %}Edit Service Entry{% else %}Add Service Entry{% endif %}</title>
 	<script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
 	<div class="w-full max-w-lg mx-auto bg-white rounded-lg shadow-lg p-8">
-		<h2 class="text-2xl font-bold text-center text-blue-700 mb-6">Add Service Entry for {{ vehicle.name }}</h2>
+		<h2 class="text-2xl font-bold text-center text-blue-700 mb-6">{% if log %}Edit Service Entry for {{ vehicle.name }}{% else %}Add Service Entry for {{ vehicle.name }}{% endif %}</h2>
 		{% with messages = get_flashed_messages(with_categories=true) %}
 		  {% if messages %}
 			<div class="mb-4">
@@ -18,24 +18,24 @@
 			</div>
 		  {% endif %}
 		{% endwith %}
-		<form method="POST" action="" class="space-y-6">
+		<form method="POST" action="{% if log %}{{ url_for('service.edit_service_log', vehicle_id=vehicle.id, log_id=log.id) }}{% else %}{{ url_for('service.add_service', vehicle_id=vehicle.id) }}{% endif %}" class="space-y-6">
 			<div>
 				<label for="service_date" class="block text-gray-700 font-semibold mb-2">Service Date</label>
-				<input type="date" name="service_date" id="service_date" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+				<input type="date" name="service_date" id="service_date" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" value="{{ log.service_date.strftime('%Y-%m-%d') if log else '' }}">
 			</div>
 			<div>
 				<label for="cost" class="block text-gray-700 font-semibold mb-2">Cost</label>
-				<input type="number" step="0.01" name="cost" id="cost" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+				<input type="number" step="0.01" name="cost" id="cost" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" value="{{ log.cost if log else '' }}">
 			</div>
 			<div>
 				<label for="service_type" class="block text-gray-700 font-semibold mb-2">Service Type</label>
-				<input type="text" name="service_type" id="service_type" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+				<input type="text" name="service_type" id="service_type" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" value="{{ log.service_type if log else '' }}">
 			</div>
 			<div>
 				<label for="notes" class="block text-gray-700 font-semibold mb-2">Notes</label>
-				<textarea name="notes" id="notes" rows="3" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+				<textarea name="notes" id="notes" rows="3" class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">{{ log.notes if log and log.notes else '' }}</textarea>
 			</div>
-			<button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 transition">Add Service Entry</button>
+			<button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700 transition">{% if log %}Update Service Entry{% else %}Add Service Entry{% endif %}</button>
 		</form>
 		<div class="mt-6 text-center">
 			<a href="{{ url_for('dashboard.dashboard', vehicle_id=vehicle.id) }}" class="text-blue-600 font-semibold hover:underline">Back to Dashboard</a>

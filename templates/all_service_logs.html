@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Logs for {{ vehicle.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-blue-700">Service Logs for {{ vehicle.name }}</h1>
+            <a href="{{ url_for('service.add_service', vehicle_id=vehicle.id) }}" class="bg-green-500 text-white px-4 py-2 rounded font-semibold hover:bg-green-600 transition">Add New Service Log</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="mb-4">
+              {% for category, message in messages %}
+                <div class="px-4 py-2 rounded text-white mb-2 {% if category == 'success' %}bg-green-500{% elif category == 'danger' %}bg-red-500{% else %}bg-blue-500{% endif %}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% if service_logs %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white rounded-lg shadow">
+                <thead>
+                    <tr class="bg-blue-100">
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Date</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Type</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Cost</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Notes</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in service_logs %}
+                    <tr class="border-b">
+                        <td class="py-2 px-4">{{ log.service_date.strftime('%Y-%m-%d') }}</td>
+                        <td class="py-2 px-4">{{ log.service_type }}</td>
+                        <td class="py-2 px-4">{{ log.cost }}</td>
+                        <td class="py-2 px-4">{{ log.notes if log.notes else 'N/A' }}</td>
+                        <td class="py-2 px-4">
+                            <a href="{{ url_for('service.edit_service_log', vehicle_id=vehicle.id, log_id=log.id) }}" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">Edit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="text-center text-gray-600 mt-12">
+                <p>No service logs found. Add your first service log!</p>
+                <a href="{{ url_for('service.add_service', vehicle_id=vehicle.id) }}" class="inline-block mt-4 bg-green-600 text-white px-4 py-2 rounded font-semibold hover:bg-green-700 transition">Add Service Log</a>
+            </div>
+        {% endif %}
+        <div class="mt-8 text-center">
+			<a href="{{ url_for('dashboard.dashboard', vehicle_id=vehicle.id) }}" class="text-blue-600 font-semibold hover:underline">Back to Dashboard</a>
+		</div>
+    </div>
+</body>
+</html>

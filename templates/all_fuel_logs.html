@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuel Logs for {{ vehicle.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto py-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-blue-700">Fuel Logs for {{ vehicle.name }}</h1>
+            <a href="{{ url_for('fuel.add_fuel_log', vehicle_id=vehicle.id) }}" class="bg-yellow-500 text-white px-4 py-2 rounded font-semibold hover:bg-yellow-600 transition">Add New Fuel Log</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="mb-4">
+              {% for category, message in messages %}
+                <div class="px-4 py-2 rounded text-white mb-2 {% if category == 'success' %}bg-green-500{% elif category == 'danger' %}bg-red-500{% else %}bg-blue-500{% endif %}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% if fuel_logs %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white rounded-lg shadow">
+                <thead>
+                    <tr class="bg-blue-100">
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Date</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Odometer (KM)</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Fuel Used (L)</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Price (per L)</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Mileage</th>
+                        <th class="py-3 px-4 text-left font-semibold text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in fuel_logs %}
+                    <tr class="border-b">
+                        <td class="py-2 px-4">{{ log.log_date.strftime('%Y-%m-%d') }}</td>
+                        <td class="py-2 px-4">{{ log.odometer|round(2) }}</td>
+                        <td class="py-2 px-4">{{ log.fuel_used|round(2) }}</td>
+                        <td class="py-2 px-4">{{ log.fuel_price|round(2) }}</td>
+                        <td class="py-2 px-4">{{ log.mileage|round(2) }}</td>
+                        <td class="py-2 px-4">
+                            <a href="{{ url_for('fuel.edit_fuel_log', vehicle_id=vehicle.id, log_id=log.id) }}" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">Edit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="text-center text-gray-600 mt-12">
+                <p>No fuel logs found. Add your first fuel log!</p>
+                <a href="{{ url_for('fuel.add_fuel_log', vehicle_id=vehicle.id) }}" class="inline-block mt-4 bg-yellow-600 text-white px-4 py-2 rounded font-semibold hover:bg-yellow-700 transition">Add Fuel Log</a>
+            </div>
+        {% endif %}
+        <div class="mt-8 text-center">
+			<a href="{{ url_for('dashboard.dashboard', vehicle_id=vehicle.id) }}" class="text-blue-600 font-semibold hover:underline">Back to Dashboard</a>
+		</div>
+    </div>
+</body>
+</html>

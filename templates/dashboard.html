@@ -10,9 +10,11 @@
 <body class="bg-gray-100 min-h-screen">
 	<div class="container mx-auto py-8">
 		<h1 class="text-3xl font-bold mb-6 text-center text-blue-700">Dashboard for {{ vehicle.name }}</h1>
-		<div class="flex justify-center gap-4 mb-8">
+		<div class="flex flex-wrap justify-center gap-4 mb-8">
 			<a href="{{ url_for('service.add_service', vehicle_id=vehicle.id) }}" class="bg-green-600 text-white px-4 py-2 rounded font-semibold hover:bg-green-700 transition">Add Service Record</a>
+			<a href="{{ url_for('service.all_service_logs', vehicle_id=vehicle.id) }}" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">Show All Service Logs</a>
 			<a href="{{ url_for('fuel.add_fuel_log', vehicle_id=vehicle.id) }}" class="bg-yellow-500 text-white px-4 py-2 rounded font-semibold hover:bg-yellow-600 transition">Add Fuel Log</a>
+			<a href="{{ url_for('fuel.all_fuel_logs', vehicle_id=vehicle.id) }}" class="bg-indigo-600 text-white px-4 py-2 rounded font-semibold hover:bg-indigo-700 transition">Show All Fuel Logs</a>
 		</div>
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 			<div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
