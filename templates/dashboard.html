@@ -1,81 +1,496 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Vehicle Dashboard</title>
 	<script src="https://cdn.tailwindcss.com"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		body {
+			font-family: 'Inter', sans-serif;
+		}
+
+		.glass-panel {
+			background: rgba(31, 41, 55, 0.7);
+			backdrop-filter: blur(10px);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+	</style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-	<div class="container mx-auto py-8">
-		<h1 class="text-3xl font-bold mb-6 text-center text-blue-700">Dashboard for {{ vehicle.name }}</h1>
-		<div class="flex flex-wrap justify-center gap-4 mb-8">
-			<a href="{{ url_for('service.add_service', vehicle_id=vehicle.id) }}" class="bg-green-600 text-white px-4 py-2 rounded font-semibold hover:bg-green-700 transition">Add Service Record</a>
-			<a href="{{ url_for('service.all_service_logs', vehicle_id=vehicle.id) }}" class="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition">Show All Service Logs</a>
-			<a href="{{ url_for('fuel.add_fuel_log', vehicle_id=vehicle.id) }}" class="bg-yellow-500 text-white px-4 py-2 rounded font-semibold hover:bg-yellow-600 transition">Add Fuel Log</a>
-			<a href="{{ url_for('fuel.all_fuel_logs', vehicle_id=vehicle.id) }}" class="bg-indigo-600 text-white px-4 py-2 rounded font-semibold hover:bg-indigo-700 transition">Show All Fuel Logs</a>
-		</div>
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-			<div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-				<span class="text-gray-500">Total KMs Driven</span>
-				<span class="text-2xl font-semibold text-blue-600">{{ total_kms }}</span>
-			</div>
-			<div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-				<span class="text-gray-500">Last Service Date</span>
-				<span class="text-2xl font-semibold text-green-600">{{ last_service_date if last_service_date else 'N/A' }}</span>
-			</div>
-			<div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-				<span class="text-gray-500">Current Mileage</span>
-				<span class="text-2xl font-semibold text-purple-600">{{ current_mileage }}</span>
-			</div>
-		</div>
 
-		<div class="bg-white rounded-lg shadow p-6 mb-8">
-			<h2 class="text-xl font-bold mb-4 text-gray-700">Mileage & Fuel Cost (Last 3 Months)</h2>
-			<canvas id="dashboardChart" height="120"></canvas>
-		</div>
+<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col md:flex-row overflow-hidden">
 
-		<div class="bg-white rounded-lg shadow p-6">
-			<h2 class="text-xl font-bold mb-4 text-gray-700">Details</h2>
-			<ul class="list-disc ml-6 text-gray-600">
-				<li><strong>Vehicle Name:</strong> {{ vehicle.name }}</li>
-				<li><strong>Purchase date:</strong> {{ vehicle.purchase_date }}</li>
-				<li><strong>Registration Number:</strong> {{ vehicle.vehicle_number }}</li>
-			</ul>
+	<!-- Mobile Header -->
+	<div class="md:hidden bg-gray-900 border-b border-gray-800 p-4 flex items-center justify-between shrink-0 z-20">
+		<div class="flex items-center gap-3">
+			<div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+				<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+				</svg>
+			</div>
+			<h1 class="text-xl font-bold tracking-wide">AutoLog</h1>
 		</div>
+		<button onclick="toggleMobileMenu()"
+			class="text-gray-400 hover:text-white p-2 rounded-lg hover:bg-gray-800 transition-colors">
+			<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+				</path>
+			</svg>
+		</button>
 	</div>
 
+	<!-- Mobile Sidebar Overlay -->
+	<div id="mobile-menu-overlay"
+		class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm hidden transition-opacity md:hidden"
+		onclick="toggleMobileMenu()"></div>
+
+	<!-- Mobile Sidebar -->
+	<aside id="mobile-menu"
+		class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 border-r border-gray-800 transform -translate-x-full transition-transform duration-300 md:hidden flex flex-col">
+		<div class="p-6 border-b border-gray-800 flex justify-between items-center">
+			<div class="flex items-center gap-3">
+				<div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+					<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+					</svg>
+				</div>
+				<h1 class="text-xl font-bold tracking-wide">AutoLog</h1>
+			</div>
+			<button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white">
+				<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+					</path>
+				</svg>
+			</button>
+		</div>
+
+		<nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+			<div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 mt-2">Menu</div>
+
+			<a href="{{ url_for('dashboard.dashboard', vehicle_id=vehicle.id) }}"
+				class="flex items-center gap-3 px-4 py-3 bg-blue-600/10 text-blue-400 rounded-xl border border-blue-600/20 transition-all">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+					</path>
+				</svg>
+				<span class="font-medium">Dashboard</span>
+			</a>
+
+			<div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-6">Actions</div>
+
+			<a href="{{ url_for('fuel.add_fuel_log', vehicle_id=vehicle.id) }}"
+				class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all group">
+				<div
+					class="p-1.5 bg-gray-800 rounded-lg group-hover:bg-yellow-500/20 group-hover:text-yellow-400 transition-colors">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+					</svg>
+				</div>
+				<span class="font-medium">Add Fuel Log</span>
+			</a>
+
+			<a href="{{ url_for('service.add_service', vehicle_id=vehicle.id) }}"
+				class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all group">
+				<div
+					class="p-1.5 bg-gray-800 rounded-lg group-hover:bg-green-500/20 group-hover:text-green-400 transition-colors">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+					</svg>
+				</div>
+				<span class="font-medium">Add Service Log</span>
+			</a>
+
+			<div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-6">Records</div>
+
+			<a href="{{ url_for('fuel.all_fuel_logs', vehicle_id=vehicle.id) }}"
+				class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all group">
+				<svg class="w-5 h-5 group-hover:text-indigo-400 transition-colors" fill="none" stroke="currentColor"
+					viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+					</path>
+				</svg>
+				<span class="font-medium">View Fuel Logs</span>
+			</a>
+
+			<a href="{{ url_for('service.all_service_logs', vehicle_id=vehicle.id) }}"
+				class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all group">
+				<svg class="w-5 h-5 group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor"
+					viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+					</path>
+				</svg>
+				<span class="font-medium">View Service Logs</span>
+			</a>
+		</nav>
+
+		<div class="p-4 border-t border-gray-800 space-y-2">
+			<a href="{{ url_for('vehicles.vehicles') }}"
+				class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+					</path>
+				</svg>
+				<span class="font-medium">Switch Vehicle</span>
+			</a>
+			<a href="{{ url_for('auth.logout') }}"
+				class="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition-all">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+					</path>
+				</svg>
+				<span class="font-medium">Logout</span>
+			</a>
+		</div>
+	</aside>
+
+	<!-- Desktop Sidebar -->
+	<aside class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col hidden md:flex shrink-0">
+		<div class="p-6 border-b border-gray-800">
+			<div class="flex items-center gap-3">
+				<div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+					<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+					</svg>
+				</div>
+				<h1 class="text-xl font-bold tracking-wide">AutoLog</h1>
+			</div>
+		</div>
+
+		<nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+			<div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4 mt-2">Menu</div>
+
+			<a href="{{ url_for('dashboard.dashboard', vehicle_id=vehicle.id) }}"
+				class="flex items-center gap-3 px-4 py-3 bg-blue-600/10 text-blue-400 rounded-xl border border-blue-600/20 transition-all">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+					</path>
+				</svg>
+				<span class="font-medium">Dashboard</span>
+			</a>
+
+			<div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-6">Actions</div>
+
+			<a href="{{ url_for('fuel.add_fuel_log', vehicle_id=vehicle.id) }}"
+				class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all group">
+				<div
+					class="p-1.5 bg-gray-800 rounded-lg group-hover:bg-yellow-500/20 group-hover:text-yellow-400 transition-colors">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+					</svg>
+				</div>
+				<span class="font-medium">Add Fuel Log</span>
+			</a>
+
+			<a href="{{ url_for('service.add_service', vehicle_id=vehicle.id) }}"
+				class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all group">
+				<div
+					class="p-1.5 bg-gray-800 rounded-lg group-hover:bg-green-500/20 group-hover:text-green-400 transition-colors">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+							d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+					</svg>
+				</div>
+				<span class="font-medium">Add Service Log</span>
+			</a>
+
+			<div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 mt-6">Records</div>
+
+			<a href="{{ url_for('fuel.all_fuel_logs', vehicle_id=vehicle.id) }}"
+				class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all group">
+				<svg class="w-5 h-5 group-hover:text-indigo-400 transition-colors" fill="none" stroke="currentColor"
+					viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+					</path>
+				</svg>
+				<span class="font-medium">View Fuel Logs</span>
+			</a>
+
+			<a href="{{ url_for('service.all_service_logs', vehicle_id=vehicle.id) }}"
+				class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all group">
+				<svg class="w-5 h-5 group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor"
+					viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+					</path>
+				</svg>
+				<span class="font-medium">View Service Logs</span>
+			</a>
+		</nav>
+
+		<div class="p-4 border-t border-gray-800 space-y-2">
+			<a href="{{ url_for('vehicles.vehicles') }}"
+				class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-xl transition-all">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+					</path>
+				</svg>
+				<span class="font-medium">Switch Vehicle</span>
+			</a>
+			<a href="{{ url_for('auth.logout') }}"
+				class="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-xl transition-all">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+					</path>
+				</svg>
+				<span class="font-medium">Logout</span>
+			</a>
+		</div>
+	</aside>
+
+	<!-- Main Content -->
+	<main class="flex-1 overflow-y-auto bg-gray-950 p-4 md:p-8">
+		<!-- Header -->
+		<header class="flex justify-between items-center mb-8">
+			<div>
+				<h2 class="text-3xl font-bold text-white">{{ vehicle.name }}</h2>
+				<p class="text-gray-400 mt-1">Overview of your vehicle's performance</p>
+			</div>
+			<div class="flex items-center gap-4">
+				<div class="text-right hidden sm:block">
+					<div class="text-sm font-medium text-white">{{ current_user.name }}</div>
+					<div class="text-xs text-gray-500">Owner</div>
+				</div>
+				<div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center border border-gray-700">
+					<span class="text-lg font-bold text-gray-300">{{ current_user.name[0]|upper }}</span>
+				</div>
+			</div>
+		</header>
+
+		<!-- Stats Grid -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+			<!-- Card 1 -->
+			<div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
+				<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+					<svg class="w-24 h-24 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+						<path
+							d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z">
+						</path>
+					</svg>
+				</div>
+				<div class="relative z-10">
+					<div class="text-gray-400 text-sm font-medium mb-1">Total Distance</div>
+					<div class="text-3xl font-bold text-white mb-2">{{ total_kms }} <span
+							class="text-lg text-gray-500 font-normal">km</span></div>
+					<div class="flex items-center text-sm text-green-400">
+						<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+								d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+						</svg>
+						<span>Lifetime driven</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Card 2 -->
+			<div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
+				<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+					<svg class="w-24 h-24 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+						<path
+							d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.58 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z">
+						</path>
+					</svg>
+				</div>
+				<div class="relative z-10">
+					<div class="text-gray-400 text-sm font-medium mb-1">Last Service</div>
+					<div class="text-3xl font-bold text-white mb-2">{{ last_service_date if last_service_date else 'N/A'
+						}}</div>
+					<div class="flex items-center text-sm text-gray-400">
+						<span>Check maintenance schedule</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Card 3 -->
+			<div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
+				<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+					<svg class="w-24 h-24 text-purple-500" fill="currentColor" viewBox="0 0 24 24">
+						<path
+							d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z">
+						</path>
+					</svg>
+				</div>
+				<div class="relative z-10">
+					<div class="text-gray-400 text-sm font-medium mb-1">Current Mileage</div>
+					<div class="text-3xl font-bold text-white mb-2">{{ current_mileage }} <span
+							class="text-lg text-gray-500 font-normal">km/l</span></div>
+					<div class="flex items-center text-sm text-purple-400">
+						<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+								d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+						</svg>
+						<span>Latest efficiency</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Charts & Details Section -->
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+			<!-- Chart Section -->
+			<div class="lg:col-span-2 glass-panel rounded-2xl p-6">
+				<div class="flex justify-between items-center mb-6">
+					<h3 class="text-lg font-bold text-white">Performance Analytics</h3>
+					<div class="flex items-center gap-2">
+						<span class="w-3 h-3 rounded-full bg-blue-500"></span>
+						<span class="text-xs text-gray-400">Mileage</span>
+						<span class="w-3 h-3 rounded-full bg-green-500 ml-2"></span>
+						<span class="text-xs text-gray-400">Cost</span>
+					</div>
+				</div>
+				<div class="relative h-80 w-full">
+					<canvas id="dashboardChart"></canvas>
+				</div>
+			</div>
+
+			<!-- Vehicle Details Section -->
+			<div class="glass-panel rounded-2xl p-6">
+				<h3 class="text-lg font-bold text-white mb-6">Vehicle Details</h3>
+
+				<div class="space-y-6">
+					<div class="flex items-start gap-4">
+						<div class="p-3 bg-gray-800 rounded-lg text-blue-400">
+							<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+									d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+									d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0">
+								</path>
+							</svg>
+						</div>
+						<div>
+							<div class="text-xs text-gray-500 uppercase tracking-wide">Model Name</div>
+							<div class="text-lg font-semibold text-white">{{ vehicle.name }}</div>
+						</div>
+					</div>
+
+					<div class="flex items-start gap-4">
+						<div class="p-3 bg-gray-800 rounded-lg text-green-400">
+							<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+									d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+								</path>
+							</svg>
+						</div>
+						<div>
+							<div class="text-xs text-gray-500 uppercase tracking-wide">Purchase Date</div>
+							<div class="text-lg font-semibold text-white">{{ vehicle.purchase_date }}</div>
+						</div>
+					</div>
+
+					<div class="flex items-start gap-4">
+						<div class="p-3 bg-gray-800 rounded-lg text-purple-400">
+							<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+									d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0c0 .884-.896 1.667-2 1.667s-2-.783-2-1.667h4z">
+								</path>
+							</svg>
+						</div>
+						<div>
+							<div class="text-xs text-gray-500 uppercase tracking-wide">Registration No.</div>
+							<div class="text-lg font-semibold text-white">{{ vehicle.vehicle_number }}</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="mt-8 pt-6 border-t border-gray-800">
+					<button
+						class="w-full py-2 px-4 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors text-sm font-medium">
+						Edit Vehicle Details
+					</button>
+				</div>
+			</div>
+		</div>
+	</main>
+
 	<script>
+		function toggleMobileMenu() {
+			const menu = document.getElementById('mobile-menu');
+			const overlay = document.getElementById('mobile-menu-overlay');
+
+			if (menu.classList.contains('-translate-x-full')) {
+				menu.classList.remove('-translate-x-full');
+				overlay.classList.remove('hidden');
+			} else {
+				menu.classList.add('-translate-x-full');
+				overlay.classList.add('hidden');
+			}
+		}
+
 		// Assign Jinja variables to JS variables
-	const labels = {{ labels|tojson|safe }};
-	const mileageData = {{ mileage_data|tojson|safe }};
-	const costData = {{ cost_data|tojson|safe }};
+		const labels = {{ labels| tojson | safe }};
+		const mileageData = {{ mileage_data| tojson | safe }};
+		const costData = {{ cost_data| tojson | safe }};
 
 		const ctx = document.getElementById('dashboardChart').getContext('2d');
+
+		// Gradient for Mileage
+		const mileageGradient = ctx.createLinearGradient(0, 0, 0, 400);
+		mileageGradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
+		mileageGradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+		// Gradient for Cost
+		const costGradient = ctx.createLinearGradient(0, 0, 0, 400);
+		costGradient.addColorStop(0, 'rgba(16, 185, 129, 0.5)');
+		costGradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
 		const dashboardChart = new Chart(ctx, {
 			type: 'line',
 			data: {
 				labels: labels,
 				datasets: [
 					{
-						label: 'Mileage',
+						label: 'Mileage (km/l)',
 						data: mileageData,
 						borderColor: '#3b82f6',
-						backgroundColor: 'rgba(59, 130, 246, 0.1)',
+						backgroundColor: mileageGradient,
+						borderWidth: 3,
+						pointBackgroundColor: '#3b82f6',
+						pointBorderColor: '#1f2937',
+						pointBorderWidth: 2,
+						pointRadius: 4,
+						pointHoverRadius: 6,
+						fill: true,
+						tension: 0.4,
 						yAxisID: 'y',
 					},
 					{
 						label: 'Fuel Cost',
 						data: costData,
 						borderColor: '#10b981',
-						backgroundColor: 'rgba(16, 185, 129, 0.1)',
+						backgroundColor: costGradient,
+						borderWidth: 3,
+						pointBackgroundColor: '#10b981',
+						pointBorderColor: '#1f2937',
+						pointBorderWidth: 2,
+						pointRadius: 4,
+						pointHoverRadius: 6,
+						fill: true,
+						tension: 0.4,
 						yAxisID: 'y1',
 					}
 				]
 			},
 			options: {
 				responsive: true,
+				maintainAspectRatio: false,
 				interaction: {
 					mode: 'index',
 					intersect: false,
@@ -83,20 +498,51 @@
 				stacked: false,
 				plugins: {
 					legend: {
-						position: 'top',
+						display: false, // Custom legend implemented in HTML
 					},
-					title: {
-						display: false,
+					tooltip: {
+						backgroundColor: 'rgba(17, 24, 39, 0.9)',
+						titleColor: '#f3f4f6',
+						bodyColor: '#d1d5db',
+						borderColor: 'rgba(75, 85, 99, 0.4)',
+						borderWidth: 1,
+						padding: 10,
+						displayColors: true,
+						usePointStyle: true,
 					}
 				},
 				scales: {
+					x: {
+						grid: {
+							color: 'rgba(75, 85, 99, 0.2)',
+							drawBorder: false,
+						},
+						ticks: {
+							color: '#9ca3af',
+							font: {
+								family: "'Inter', sans-serif",
+								size: 11
+							}
+						}
+					},
 					y: {
 						type: 'linear',
 						display: true,
 						position: 'left',
+						grid: {
+							color: 'rgba(75, 85, 99, 0.2)',
+							drawBorder: false,
+							borderDash: [5, 5]
+						},
+						ticks: {
+							color: '#9ca3af',
+							font: {
+								family: "'Inter', sans-serif",
+								size: 11
+							}
+						},
 						title: {
-							display: true,
-							text: 'Mileage'
+							display: false,
 						}
 					},
 					y1: {
@@ -106,9 +552,15 @@
 						grid: {
 							drawOnChartArea: false,
 						},
+						ticks: {
+							color: '#9ca3af',
+							font: {
+								family: "'Inter', sans-serif",
+								size: 11
+							}
+						},
 						title: {
-							display: true,
-							text: 'Fuel Cost'
+							display: false,
 						}
 					}
 				}
@@ -116,4 +568,5 @@
 		});
 	</script>
 </body>
+
 </html>

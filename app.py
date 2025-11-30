@@ -11,7 +11,7 @@ from dashboard import dashboard_bp
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'sk_7f3b9d1e6a2c4f8d0e5a7b2c1d9e6f3a'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://kaushik:kkj123@localhost/autolog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://admin:bluestar1907@database-1.cz8q880g4403.ap-south-1.rds.amazonaws.com:3306/autolog'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
